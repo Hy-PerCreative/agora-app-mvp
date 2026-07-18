@@ -1,0 +1,50 @@
+name: ACE CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          npm install 2>&1 | tee npm-install.log
+
+      - name: Type-check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee typecheck.log
+
+      - name: Build
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build.log
+
+      - name: Preserve validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ace-validation-logs
+          path: |
+            npm-install.log
+            typecheck.log
+            build.log
+          if-no-files-found: ignore
