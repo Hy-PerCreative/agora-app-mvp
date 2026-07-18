@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
-const isGitHubPages = process.env.GITHUB_ACTIONS === "true";
+const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
+const isGitHubPages = process.env.GITHUB_ACTIONS === "true" && Boolean(repositoryName);
+const basePath = isGitHubPages ? `/${repositoryName}` : "";
 
 const nextConfig = {
   output: "export",
   images: { unoptimized: true },
-  basePath: isGitHubPages ? "/agora-app-mvp" : "",
-  assetPrefix: isGitHubPages ? "/agora-app-mvp/" : "",
+  basePath,
+  assetPrefix: basePath ? `${basePath}/` : "",
 };
 
 export default nextConfig;
